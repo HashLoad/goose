@@ -3,15 +3,15 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"github.com/hashload/goose"
 	"log"
 	"os"
-
-	"github.com/pressly/goose"
 
 	// Init DB drivers.
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	_ "github.com/ziutek/mymysql/godrv"
+	_ "gopkg.in/goracle.v2"
 )
 
 var (
@@ -53,6 +53,8 @@ func main() {
 		driver = "postgres"
 	case "tidb":
 		driver = "mysql"
+	case "oracle":
+		driver = "goracle"
 	}
 
 	switch dbstring {
@@ -90,6 +92,7 @@ Drivers:
     mysql
     sqlite3
     redshift
+    oracle
 
 Examples:
     goose sqlite3 ./foo.db status
@@ -102,6 +105,7 @@ Examples:
     goose mysql "user:password@/dbname?parseTime=true" status
     goose redshift "postgres://user:password@qwerty.us-east-1.redshift.amazonaws.com:5439/db" status
     goose tidb "user:password@/dbname?parseTime=true" status
+    goose oracle "ora://user/password@localhost" status
 
 Options:
 `

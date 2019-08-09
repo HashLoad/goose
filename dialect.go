@@ -33,6 +33,8 @@ func SetDialect(d string) error {
 		dialect = &RedshiftDialect{}
 	case "tidb":
 		dialect = &TiDBDialect{}
+	case "oracle":
+		dialect = &OracleDialect{}
 	default:
 		return fmt.Errorf("%q: unknown dialect", d)
 	}
@@ -182,6 +184,36 @@ func (m TiDBDialect) insertVersionSQL() string {
 
 func (m TiDBDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
 	rows, err := db.Query(fmt.Sprintf("SELECT version_id, is_applied from %s ORDER BY id DESC", TableName()))
+	if err != nil {
+		return nil, err
+	}
+
+	return rows, err
+}
+
+////////////////////////////
+// Oracle
+////////////////////////////
+
+// OracleDialect struct.
+type OracleDialect struct{}
+
+func (OracleDialect) createVersionTableSQL() string {
+	return fmt.Sprintf(`CREATE TABLE "%[1]s" (
+                id NUMBER GENERATED ALWAYS AS IDENTITY,
+                version_id NUMBER(19) NOT NULL,
+                is_applied char(1) NOT NULL,
+                tstamp TIMESTAMP(6) default SYS_EXTRACT_UTC(SYSTIMESTAMP)
+            );
+  		ALTER TABLE "%[1]s" ADD PRIMARY KEY ("ID");`, TableName())
+}
+
+func (OracleDialect) insertVersionSQL() string {
+	return fmt.Sprintf(`INSERT INTO "%s" (version_id, is_applied) VALUES (?, ?);`, TableName())
+}
+
+func (OracleDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
+	rows, err := db.Query(fmt.Sprintf(`SELECT version_id, is_applied from "%s" ORDER BY id DESC`, TableName()))
 	if err != nil {
 		return nil, err
 	}

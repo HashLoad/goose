@@ -5,3 +5,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/lib/pq"
+
+[[constraint]]
+  name = "gopkg.in/goracle.v2"
+  version = "2.18.2"
