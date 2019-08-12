@@ -54,7 +54,7 @@ func (m *Migration) run(db *sql.DB, direction bool) error {
 	switch filepath.Ext(m.Source) {
 	case ".sql":
 		if err := runSQLMigration(db, m.Source, m.Version, direction); err != nil {
-			return fmt.Errorf("FAIL %v, quitting migration", err)
+			return fmt.Errorf("FAIL %v, quitting migration %s", err, m.Source)
 		}
 
 	case ".go":

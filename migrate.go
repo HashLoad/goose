@@ -255,9 +255,21 @@ func createVersionTable(db *sql.DB) error {
 		txn.Rollback()
 		return err
 	}
+	return txn.Commit()
+
+	txn, err = db.Begin()
+	if err != nil {
+		return err
+	}
 
 	version := 0
 	applied := true
+
+	if err := d.dbRunAux(txn); err != nil {
+		txn.Rollback()
+		return err
+
+	}
 	if _, err := txn.Exec(d.insertVersionSQL(), version, applied); err != nil {
 		txn.Rollback()
 		return err
