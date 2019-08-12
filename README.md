@@ -2,7 +2,7 @@
 
 Goose is a database migration tool. Manage your database schema by creating incremental SQL changes or Go functions.
 
-[![GoDoc Widget]][GoDoc] [![Travis Widget]][Travis]
+[![GoDoc Widget]][GoDoc] [![Build Status](https://travis-ci.com/HashLoad/goose.svg?branch=master)](https://travis-ci.com/HashLoad/goose)
 
 ### Goals of this fork
 
