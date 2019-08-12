@@ -199,13 +199,25 @@ func (m TiDBDialect) dbVersionQuery(db *sql.DB) (*sql.Rows, error) {
 type OracleDialect struct{}
 
 func (OracleDialect) createVersionTableSQL() string {
-	return fmt.Sprintf(`CREATE TABLE "%[1]s" (
-                id NUMBER GENERATED ALWAYS AS IDENTITY,
+	return fmt.Sprintf(`
+		CREATE TABLE "%[1]s" (
+                id NUMBER,
                 version_id NUMBER(19) NOT NULL,
                 is_applied char(1) NOT NULL,
                 tstamp TIMESTAMP(6) default SYS_EXTRACT_UTC(SYSTIMESTAMP)
             );
-  		ALTER TABLE "%[1]s" ADD PRIMARY KEY ("ID");`, TableName())
+  		ALTER TABLE "%[1]s" ADD PRIMARY KEY ("ID");
+		CREATE SEQUENCE %[1]s_id_seq;
+		create or replace trigger %[1]s_BI
+		   before insert on "%[1]s" 
+		   for each row 
+		begin  
+		   if inserting then 
+			  if :NEW."ID" is null then 
+				 select %[1]s_id_seq.nextval into :NEW."ID" from dual; 
+			  end if; 
+		   end if;
+		end;`, TableName())
 }
 
 func (OracleDialect) insertVersionSQL() string {
